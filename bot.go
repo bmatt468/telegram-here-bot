@@ -54,13 +54,13 @@ func main() {
                     msg := tgbotapi.NewMessage(update.Message.Chat.ID, msg_string)
                     bot.Send(msg)
                 } else {
-                    result, err := db.Query("INSERT INTO users(username,chat_id,flag_active) VALUES(?,?,1)",update.Message.From.UserName,update.Message.Chat.ID)
+                    result, err := db.Query("INSERT INTO users(username,chat_id,flag_active) VALUES(?,?,1)","@"+update.Message.From.UserName,update.Message.Chat.ID)
                     if err != nil {
-                            log.Fatal(err)
+                        log.Fatal(err)
                     }
                     defer result.Close()
 
-                    msg_string := update.Message.From.UserName+" has been registered."
+                    msg_string := "@"+update.Message.From.UserName+" has been registered."
                     msg := tgbotapi.NewMessage(update.Message.Chat.ID, msg_string)
                     bot.Send(msg)
                 }
@@ -77,13 +77,13 @@ func main() {
                     msg := tgbotapi.NewMessage(update.Message.Chat.ID, msg_string)
                     bot.Send(msg)
                 } else {
-                    result, err := db.Query("UPDATE users SET flag_active=0 WHERE chat_id=? AND username=? ",update.Message.Chat.ID,update.Message.From.UserName)
+                    result, err := db.Query("UPDATE users SET flag_active=0 WHERE chat_id=? AND username=? ",update.Message.Chat.ID,"@"+update.Message.From.UserName)
                     if err != nil {
                         log.Fatal(err)
                     }
                     defer result.Close()
 
-                    msg_string := update.Message.From.UserName+" has been deregistered."
+                    msg_string := "@"+update.Message.From.UserName+" has been deregistered."
                     msg := tgbotapi.NewMessage(update.Message.Chat.ID, msg_string)
                     bot.Send(msg)
                 }
@@ -95,7 +95,7 @@ func main() {
                 }
                 defer db.Close()
 
-                users, err := db.Query("SELECT username FROM users u WHERE chat_id=? AND flag_active=1",update.Message.Chat.ID)
+                users, err := db.Query("SELECT username FROM users u WHERE chat_id=? AND flag_active=1 GROUP BY u.username, u.chat_id",update.Message.Chat.ID)
                 if err != nil {
                     log.Fatal(err)
                 }
