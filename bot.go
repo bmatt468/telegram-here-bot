@@ -4,6 +4,7 @@ import (
 	"log"
 	"gopkg.in/telegram-bot-api.v4"
 	"net/http"
+    "strings"
 )
 
 const (
@@ -33,6 +34,17 @@ func main() {
     go http.ListenAndServeTLS("0.0.0.0:88",bot_cert,bot_key,nil)
 
     for update := range updates {
-        log.Printf("%+v\n", update)
+        if update.Message != nil {
+            switch cmd := strings.Split(update.Message.Text, " "); strings.Replace(cmd[0],"@everyone_here_bot","",-1) {
+                case "/start":
+                    log.Printf("%+v\n", cmd)
+                case "/register":
+                    log.Printf("%+v\n", cmd)
+                case "/deregister":
+                    log.Printf("%+v\n", cmd)
+                case "/all", "/here":
+                    log.Printf("%+v\n", cmd)
+            }
+        }
     }
 }
