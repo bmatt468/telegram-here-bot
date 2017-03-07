@@ -43,33 +43,47 @@ func main() {
                 bot.Send(msg)
 
             case "/register":
-                log.Printf("%+v\n", cmd)
-
-            case "/deregister":
-                // Connect to our database
                 db, err := ConnectDB()
                 if err != nil {
                     log.Fatal(err)
                 }
                 defer db.Close()
 
-                if len(cmd) == 1 || len(cmd) > 2 {
-                    // Wrong Usage
-                    msg_string := "Correct Usage: /deregister @username"
+                if len(cmd) > 1 {
+                    msg_string := "Correct Usage: /register"
                     msg := tgbotapi.NewMessage(update.Message.Chat.ID, msg_string)
                     bot.Send(msg)
+                } else {
+                    result, err := db.Query("INSERT INTO users(username,chat_id,flag_active) VALUES(?,?,1)",update.Message.From.UserName,update.Message.Chat.ID)
+                    if err != nil {
+                            log.Fatal(err)
+                    }
+                    defer result.Close()
 
-                } else if cmd[1] != "@"+update.Message.From.UserName {
-                    msg := tgbotapi.NewMessage(update.Message.Chat.ID, "You may not deregister another user.")
+                    msg_string := update.Message.From.UserName+" has been registered."
+                    msg := tgbotapi.NewMessage(update.Message.Chat.ID, msg_string)
                     bot.Send(msg)
-                } else if len(cmd) == 2 {
-                    result, err := db.Query("UPDATE users SET flag_active=0 WHERE chat_id=? AND username=? ",update.Message.Chat.ID,cmd[1])
+                }
+
+            case "/deregister":
+                db, err := ConnectDB()
+                if err != nil {
+                    log.Fatal(err)
+                }
+                defer db.Close()
+
+                if len(cmd) > 1 {
+                    msg_string := "Correct Usage: /deregister"
+                    msg := tgbotapi.NewMessage(update.Message.Chat.ID, msg_string)
+                    bot.Send(msg)
+                } else {
+                    result, err := db.Query("UPDATE users SET flag_active=0 WHERE chat_id=? AND username=? ",update.Message.Chat.ID,update.Message.From.UserName)
                     if err != nil {
                         log.Fatal(err)
                     }
                     defer result.Close()
 
-                    msg_string := cmd[1]+" has been deregistered."
+                    msg_string := update.Message.From.UserName+" has been deregistered."
                     msg := tgbotapi.NewMessage(update.Message.Chat.ID, msg_string)
                     bot.Send(msg)
                 }
@@ -97,7 +111,11 @@ func main() {
                     msg_string += " " + username
                 }
                 if err := users.Err(); err != nil {
-                        log.Fatal(err)
+                    log.Fatal(err)
+                }
+
+                if msg_string == "" {
+                    msg_string = "No users registered."
                 }
 
                 msg := tgbotapi.NewMessage(update.Message.Chat.ID, msg_string)
