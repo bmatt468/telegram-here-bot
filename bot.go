@@ -2,6 +2,7 @@ package main
 
 import (
     "database/sql"
+    "flag"
 	"log"
     "github.com/go-sql-driver/mysql"
 	"gopkg.in/telegram-bot-api.v4"
@@ -18,6 +19,9 @@ const (
 )
 
 func main() {
+    dbPass := flag.String("p","","database password")
+    flag.Parse()
+
     bot, err := tgbotapi.NewBotAPI(bot_token)
     if err != nil {
         log.Fatal(err)
@@ -43,7 +47,7 @@ func main() {
                 bot.Send(msg)
 
             case "/register":
-                db, err := ConnectDB()
+                db, err := ConnectDB(*dbPass)
                 if err != nil {
                     log.Fatal(err)
                 }
@@ -66,7 +70,7 @@ func main() {
                 }
 
             case "/deregister":
-                db, err := ConnectDB()
+                db, err := ConnectDB(*dbPass)
                 if err != nil {
                     log.Fatal(err)
                 }
@@ -89,7 +93,7 @@ func main() {
                 }
 
             case "/all", "/here":
-                db, err := ConnectDB()
+                db, err := ConnectDB(*dbPass)
                 if err != nil {
                     log.Fatal(err)
                 }
@@ -125,10 +129,10 @@ func main() {
     }
 }
 
-func ConnectDB() (*sql.DB, error) {
+func ConnectDB(password string) (*sql.DB, error) {
     cfg := &mysql.Config {
         User: "hello-bot",
-        Passwd: "H3Ll0B0T",
+        Passwd: password,
         Net: "tcp",
         Addr: "107.170.45.12:3306",
         DBName: "hello-bot",
