@@ -60,7 +60,7 @@ func (bot *HereBot) ParseAndExecuteUpdate(update tgbotapi.Update) {
         switch cmd := strings.Split(update.Message.Text, " "); strings.Replace(cmd[0],"@everyone_here_bot","",-1) {
         case "/start":
             msg := tgbotapi.NewMessage(update.Message.Chat.ID, "HereBot is now active.")
-            bot.Send(msg)
+            bot.API.Send(msg)
 
         case "/register":
             db, err := ConnectDB(bot.dbPass)
@@ -72,7 +72,7 @@ func (bot *HereBot) ParseAndExecuteUpdate(update tgbotapi.Update) {
             if len(cmd) > 1 {
                 msg_string := "Correct Usage: /register"
                 msg := tgbotapi.NewMessage(update.Message.Chat.ID, msg_string)
-                bot.Send(msg)
+                bot.API.Send(msg)
             } else {
                 result, err := db.Query("INSERT INTO users(username,chat_id,flag_active) VALUES(?,?,1)","@"+update.Message.From.UserName,update.Message.Chat.ID)
                 if err != nil {
@@ -82,7 +82,7 @@ func (bot *HereBot) ParseAndExecuteUpdate(update tgbotapi.Update) {
 
                 msg_string := "@"+update.Message.From.UserName+" has been registered."
                 msg := tgbotapi.NewMessage(update.Message.Chat.ID, msg_string)
-                bot.Send(msg)
+                bot.API.Send(msg)
             }
 
         case "/deregister":
@@ -105,7 +105,7 @@ func (bot *HereBot) ParseAndExecuteUpdate(update tgbotapi.Update) {
 
                 msg_string := "@"+update.Message.From.UserName+" has been deregistered."
                 msg := tgbotapi.NewMessage(update.Message.Chat.ID, msg_string)
-                bot.Send(msg)
+                bot.API.Send(msg)
             }
 
         case "/all", "/here":
@@ -139,7 +139,7 @@ func (bot *HereBot) ParseAndExecuteUpdate(update tgbotapi.Update) {
             }
 
             msg := tgbotapi.NewMessage(update.Message.Chat.ID, msg_string)
-            bot.Send(msg)
+            bot.API.Send(msg)
         }
     }
 }
