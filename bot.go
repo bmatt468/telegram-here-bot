@@ -13,7 +13,7 @@ type HereBot struct {
     dbPass string
 }
 
-func Connect(tkn string, debug bool, dbPass string) (*SmawkBot, error) {
+func Connect(tkn string, debug bool, dbPass string) (*HereBot, error) {
     // Call the Telegram API wrapper and authenticate our Bot
     bot, err := tgbotapi.NewBotAPI(tkn)
 
@@ -95,7 +95,7 @@ func (bot *HereBot) ParseAndExecuteUpdate(update tgbotapi.Update) {
             if len(cmd) > 1 {
                 msg_string := "Correct Usage: /deregister"
                 msg := tgbotapi.NewMessage(update.Message.Chat.ID, msg_string)
-                bot.Send(msg)
+                bot.API.Send(msg)
             } else {
                 result, err := db.Query("UPDATE users SET flag_active=0 WHERE chat_id=? AND username=? ",update.Message.Chat.ID,"@"+update.Message.From.UserName)
                 if err != nil {
